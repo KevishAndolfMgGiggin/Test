@@ -2582,6 +2582,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   forwardSpeed: 10
+  backSpeed: 0
+  turnSpeed: 0
 --- !u!1 &7860242478181284126
 GameObject:
   m_ObjectHideFlags: 0
