@@ -31,6 +31,8 @@ public class CameraControllerScript : MonoBehaviour
     void CamControl()
     {
 
+        Debug.Log(Input.GetAxis("RightStick_Horizontal"));
+
         xAxis -=
             Input.GetAxis("RightStick_Vertical") *
             rotationSpeed;
