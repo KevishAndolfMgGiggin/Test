@@ -6,7 +6,7 @@ public class CharacterControllerScript : MonoBehaviour
 {
     private CharacterController controller;
     private Vector3 playerVelocity;
-    private bool groundedPlayer;
+    private bool isGrounded;
 
     public float jumpHeight = 1.0f;
     public float gravityValue = -9.81f;
@@ -30,18 +30,14 @@ public class CharacterControllerScript : MonoBehaviour
 
     private void applyMovement()
     {
-        if(transform.position.y <= 0)
+        if (transform.position.y <= 0)
         {
-            transform.position =
-                new Vector3(transform.position.x, 0f, transform.position.z);
-            groundedPlayer = true;
+            isGrounded = true;
         }
         else
         {
-            groundedPlayer = false;
+            isGrounded = false;
         }
-        //groundedPlayer = controller.isGrounded;
-        Debug.Log(groundedPlayer);
         //xAxis and zAxis from left thumbstick
         float xAxis = Input.GetAxis("LeftStick_Horizontal");
         float zAxis = Input.GetAxis("LeftStick_Vertical");
@@ -76,32 +72,55 @@ public class CharacterControllerScript : MonoBehaviour
         }
     }
 
+    public float jumpForce;
+    public float jumpTimeMax;
+
+    private float jumpTimeCounter;
+    private bool isJumping;
+
     private void applyJump()
     {
         //checks if the player is grounded
-        if (groundedPlayer)
+        if (isGrounded)
         {
             playerVelocity.y = 0f;
         }
 
         // Changes the height position of the player..
-        if (Input.GetButtonDown("Jump") && groundedPlayer)
+        if (Input.GetButtonDown("Jump") && isGrounded)
         {
-            playerVelocity.y += Mathf.Sqrt(jumpHeight * -3.0f * gravityValue);
+            isJumping = true;
+            jumpTimeCounter = jumpTimeMax;
+            playerVelocity.y = jumpForce;
+            //playerVelocity.y += Mathf.Sqrt(jumpHeight * -3.0f * gravityValue);
         }
+
+        if (Input.GetButton("Jump") && isJumping)
+        {
+            if (jumpTimeCounter > 0)
+            {
+                playerVelocity.y = jumpForce;
+                jumpTimeCounter -= Time.deltaTime;
+            }
+            else
+            {
+                isJumping = false;
+            }
+        }
+        else
+        {
+            isJumping = false;
+        }
+
 
         playerVelocity.y += gravityValue * Time.deltaTime;
         controller.Move(playerVelocity * Time.deltaTime);
 
+        //sets y-position to 0 so ther character never falls beneath the floor
         if (transform.position.y <= 0)
         {
             transform.position =
                 new Vector3(transform.position.x, 0f, transform.position.z);
-            groundedPlayer = true;
-        }
-        else
-        {
-            groundedPlayer = false;
         }
     }
 }
