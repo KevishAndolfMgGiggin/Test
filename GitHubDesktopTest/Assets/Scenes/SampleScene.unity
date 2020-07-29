@@ -260,6 +260,7 @@ MonoBehaviour:
   strafeSpeedMultiplier: 0.5
   jumpForce: 5
   jumpTimeMax: 1
+  jumpAgainMaxHeight: 1
 --- !u!143 &538732650
 CharacterController:
   m_ObjectHideFlags: 0

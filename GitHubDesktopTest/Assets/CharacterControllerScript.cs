@@ -74,9 +74,11 @@ public class CharacterControllerScript : MonoBehaviour
 
     public float jumpForce;
     public float jumpTimeMax;
+    public float jumpAgainMaxHeight;
 
     private float jumpTimeCounter;
     private bool isJumping;
+    private bool jumpAgain;
 
     private void applyJump()
     {
@@ -87,11 +89,13 @@ public class CharacterControllerScript : MonoBehaviour
         }
 
         // Changes the height position of the player..
-        if (Input.GetButtonDown("Jump") && isGrounded)
+        if ((Input.GetButtonDown("Jump") && isGrounded) ||
+            (jumpAgain && isGrounded))
         {
             isJumping = true;
             jumpTimeCounter = jumpTimeMax;
             playerVelocity.y = jumpForce;
+            jumpAgain = false;
             //playerVelocity.y += Mathf.Sqrt(jumpHeight * -3.0f * gravityValue);
         }
 
@@ -112,6 +116,15 @@ public class CharacterControllerScript : MonoBehaviour
             isJumping = false;
         }
 
+        Debug.Log("jumpTimeCounter " + jumpTimeCounter);
+        Debug.Log("jumpAgainBuffer " + jumpAgainMaxHeight);
+        Debug.Log("jumpAgain " + jumpAgain);
+        if ((transform.position.y < jumpAgainMaxHeight) &&
+            playerVelocity.y < 0 &&
+            Input.GetButtonDown("Jump"))
+        {
+            jumpAgain = true;
+        }
 
         playerVelocity.y += gravityValue * Time.deltaTime;
         controller.Move(playerVelocity * Time.deltaTime);
