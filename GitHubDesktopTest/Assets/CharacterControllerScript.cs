@@ -25,6 +25,7 @@ public class CharacterControllerScript : MonoBehaviour
     {
         applyMovement();
         applyJump();
+        applySwordThrow();
     }
 
     private void applyMovement()
@@ -160,4 +161,23 @@ public class CharacterControllerScript : MonoBehaviour
                 new Vector3(transform.position.x, 0f, transform.position.z);
         }
     }
+
+    public GameObject sword;
+    public float swordForce;
+
+    private Vector3 swordVelocity;
+
+    private void applySwordThrow()
+    {
+        if (Input.GetButtonDown("Movement Ability"))
+        {
+            Instantiate(sword, transform.position + transform.right, transform.rotation);
+        }
+
+    }
+
+    public void teleportToSword (Vector3 position, Quaternion rotation) {
+        transform.position = position;
+    }
+
 }
