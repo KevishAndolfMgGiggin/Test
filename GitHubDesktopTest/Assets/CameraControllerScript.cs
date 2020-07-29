@@ -34,11 +34,12 @@ public class CameraControllerScript : MonoBehaviour
         xAxis -=
             Input.GetAxis("RightStick_Vertical") *
             rotationSpeed;
+        xAxis %= 360;
 
         yAxis +=
             Input.GetAxis("RightStick_Horizontal") *
             rotationSpeed;
-
+        yAxis %= 360;
 
         xAxis = Mathf.Clamp(xAxis, -22.5f, 45f);
 

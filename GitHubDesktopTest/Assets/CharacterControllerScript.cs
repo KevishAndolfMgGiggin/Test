@@ -14,7 +14,6 @@ public class CharacterControllerScript : MonoBehaviour
     public float backSpeedMultiplier;
     public float strafeSpeedMultiplier;
 
-
     // Start is called before the first frame update
     void Start()
     {
@@ -30,6 +29,7 @@ public class CharacterControllerScript : MonoBehaviour
 
     private void applyMovement()
     {
+        //isGrounded is only true when at or below the ground level of y=0
         if (transform.position.y <= 0)
         {
             isGrounded = true;
@@ -38,12 +38,13 @@ public class CharacterControllerScript : MonoBehaviour
         {
             isGrounded = false;
         }
+
         //xAxis and zAxis from left thumbstick
         float xAxis = Input.GetAxis("LeftStick_Horizontal");
         float zAxis = Input.GetAxis("LeftStick_Vertical");
+
         //x movement adjusted for strafe speed
         float xMove = xAxis *= strafeSpeedMultiplier;
-
         //back movement adjusted for back speed
         float zMove = zAxis;
         if (zAxis < 1)
@@ -88,9 +89,12 @@ public class CharacterControllerScript : MonoBehaviour
             playerVelocity.y = 0f;
         }
 
-        // Changes the height position of the player..
-        if ((Input.GetButtonDown("Jump") && isGrounded) ||
-            (jumpAgain && isGrounded))
+        /* If the character is on the ground and jump is pressed
+         * or if jump was pressed within the buffer distance when falling
+         * to the ground: the the character will jump, reset the jump time
+         * counter, apply the jump force, and set jump again to false;
+         */
+        if ((Input.GetButtonDown("Jump") || jumpAgain) && isGrounded)
         {
             isJumping = true;
             jumpTimeCounter = jumpTimeMax;
@@ -99,6 +103,14 @@ public class CharacterControllerScript : MonoBehaviour
             //playerVelocity.y += Mathf.Sqrt(jumpHeight * -3.0f * gravityValue);
         }
 
+        /* if player is still holding jump button since jumping then they can
+         * continue applying the jump force and making the character's jump
+         * higher until the jump time counter runs out in which case the jump
+         * ends and isJumping becomes false
+         * 
+         * else if the player is jumping but has released the jump button then
+         * the jump ends and isJumping becomes false
+         */
         if (Input.GetButton("Jump") && isJumping)
         {
             if (jumpTimeCounter > 0)
@@ -112,13 +124,16 @@ public class CharacterControllerScript : MonoBehaviour
             }
         }
         else
+        //if(Input.GetButtonUp("Jump") && isJumping)
         {
             isJumping = false;
         }
 
-        Debug.Log("jumpTimeCounter " + jumpTimeCounter);
-        Debug.Log("jumpAgainBuffer " + jumpAgainMaxHeight);
-        Debug.Log("jumpAgain " + jumpAgain);
+        /* if the player presses the jump button while falling and is between
+         * the ground and the jumpAgainMaxHeight set in the inspector then 
+         * jumpAgain is set to true and the player will jump again instantly
+         * upon landing
+        */
         if ((transform.position.y < jumpAgainMaxHeight) &&
             playerVelocity.y < 0 &&
             Input.GetButtonDown("Jump"))
@@ -126,11 +141,20 @@ public class CharacterControllerScript : MonoBehaviour
             jumpAgain = true;
         }
 
-        playerVelocity.y += gravityValue * Time.deltaTime;
-        controller.Move(playerVelocity * Time.deltaTime);
+        // applys gravity if the character is not on the ground
+        if (!isGrounded)
+        {
+            playerVelocity.y += gravityValue * Time.deltaTime;
+        }
+        // applys y-velocity if it has a value
+        if (Mathf.Abs(playerVelocity.y) > Mathf.Epsilon)
+        {
+            controller.Move(playerVelocity * Time.deltaTime);
+        }
 
-        //sets y-position to 0 so ther character never falls beneath the floor
-        if (transform.position.y <= 0)
+        // sets y-position to 0 if negative so the character never falls beneath
+        // the floor
+        if (transform.position.y < 0f)
         {
             transform.position =
                 new Vector3(transform.position.x, 0f, transform.position.z);
